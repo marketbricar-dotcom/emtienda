@@ -1,0 +1,1724 @@
+﻿<!doctype html>
+<html lang="es">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EM Tienda Online</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #ffffff;
+      height: 100%;
+      overflow-x: hidden;
+    }
+    
+    html {
+      height: 100%;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #E6D5F5 0%, #D4C5E8 100%);
+      padding: 30px 20px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 4px 15px rgba(147, 125, 8, 0.1);
+    }
+    
+    .header h1 {
+      margin: 0 0 10px 0;
+      color: #7C5BA6;
+      font-size: 36px;
+    }
+    
+    .header p {
+      margin: 0;
+      color: #937D08;
+      font-size: 16px;
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      background: #F3E5FF;
+      border: 2px solid #E6D5F5;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #7C5BA6;
+      font-weight: 600;
+      font-size: 15px;
+    }
+    
+    .tab:hover {
+      background: #E6D5F5;
+      transform: translateY(-2px);
+    }
+    
+    .tab.active {
+      background: #D4C5E8;
+      border-color: #7C5BA6;
+      color: #ffffff;
+    }
+    
+    .section {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .card {
+      background: #ffffff;
+      border: 2px solid #E6D5F5;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(124, 91, 166, 0.08);
+    }
+    
+    .card h2 {
+      margin: 0 0 20px 0;
+      color: #7C5BA6;
+      font-size: 24px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #7C5BA6;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #E6D5F5;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border-color 0.3s ease;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #D4C5E8;
+    }
+    
+    .btn {
+      padding: 12px 30px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: #D4C5E8;
+      color: #ffffff;
+    }
+    
+    .btn-primary:hover {
+      background: #C3B4D7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(124, 91, 166, 0.2);
+    }
+    
+    .btn-primary:disabled {
+      background: #E6D5F5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-secondary {
+      background: #F3E5FF;
+      color: #7C5BA6;
+      border: 2px solid #E6D5F5;
+    }
+    
+    .btn-secondary:hover {
+      background: #E6D5F5;
+    }
+    
+    .btn-accent {
+      background: #937D08;
+      color: #ffffff;
+    }
+    
+    .btn-accent:hover {
+      background: #7a6707;
+    }
+    
+    .btn-danger {
+      background: #E8C5D4;
+      color: #ffffff;
+    }
+    
+    .btn-danger:hover {
+      background: #D7B4C3;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+    
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .product-card {
+      background: linear-gradient(135deg, #F3E5FF 0%, #ffffff 100%);
+      border: 2px solid #E6D5F5;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(124, 91, 166, 0.15);
+    }
+    
+    .product-card h3 {
+      margin: 0 0 15px 0;
+      color: #7C5BA6;
+      font-size: 20px;
+    }
+    
+    .product-info {
+      margin-bottom: 15px;
+    }
+    
+    .product-info p {
+      margin: 8px 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .product-info .price {
+      font-size: 24px;
+      color: #937D08;
+      font-weight: bold;
+    }
+    
+    .product-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .stock-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #E6D5F5;
+      color: #7C5BA6;
+    }
+    
+    .stock-badge.low {
+      background: #FFE5E5;
+      color: #D77;
+    }
+    
+    .category-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #D4C5E8;
+      color: #ffffff;
+      margin-right: 5px;
+    }
+    
+    .venta-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: #F3E5FF;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .venta-info {
+      flex: 1;
+    }
+    
+    .venta-info h4 {
+      margin: 0 0 5px 0;
+      color: #7C5BA6;
+    }
+    
+    .venta-info p {
+      margin: 0;
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .filters select,
+    .filters input {
+      padding: 10px;
+      border: 2px solid #E6D5F5;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #F3E5FF 0%, #E6D5F5 100%);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid #E6D5F5;
+    }
+    
+    .stat-card h3 {
+      margin: 0 0 10px 0;
+      color: #7C5BA6;
+      font-size: 16px;
+    }
+    
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #937D08;
+      margin: 0;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 20px;
+      opacity: 0.3;
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #E6D5F5;
+      border-top-color: #7C5BA6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-left: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #7C5BA6;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      animation: slideIn 0.3s ease;
+      z-index: 1000;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(400px); }
+      to { transform: translateX(0); }
+    }
+    
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .category-item {
+      background: #F3E5FF;
+      padding: 15px;
+      border-radius: 8px;
+      border: 2px solid #E6D5F5;
+    }
+    
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .category-title {
+      color: #7C5BA6;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    
+    .subcategory-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      padding-left: 20px;
+    }
+    
+    .subcategory-tag {
+      background: #D4C5E8;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 15px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .delete-subcategory {
+      cursor: pointer;
+      font-weight: bold;
+      opacity: 0.7;
+    }
+    
+    .delete-subcategory:hover {
+      opacity: 1;
+    }
+    
+    .inline-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    
+    .inline-form input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #E6D5F5;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 28px;
+      }
+      
+      .tabs {
+        flex-direction: column;
+      }
+      
+      .tab {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .inventory-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .filters {
+        flex-direction: column;
+        width: 100%;
+      }
+      
+      .filters select,
+      .filters input {
+        width: 100%;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container">
+   <div class="header">
+    <h1 id="storeName">EM Tienda Online</h1>
+    <p id="welcomeMessage">Gestiona tu inventario y ventas</p>
+   </div>
+   <div class="tabs">
+    <div class="tab active" onclick="showSection('agregar')">
+     ➕ Añadir Artículo
+    </div>
+    <div class="tab" onclick="showSection('categorias')">
+     📁 Categorías
+    </div>
+    <div class="tab" onclick="showSection('ventas')">
+     📊 Registro de Ventas
+    </div>
+    <div class="tab" onclick="showSection('creditos')">
+     🏦 Créditos
+    </div>
+    <div class="tab" onclick="showSection('reportes')">
+     📈 Reportes
+    </div>
+   </div><!-- Sección Añadir Artículo -->
+   <div id="agregar" class="section active">
+    <div class="card">
+     <h2>➕ Añadir Nuevo Artículo</h2>
+     <form id="addProductForm" onsubmit="handleAddProduct(event)">
+      <div class="form-group"><label for="productName">Nombre del Producto</label> <input type="text" id="productName" required placeholder="Ej: Camiseta Básica">
+      </div>
+      <div class="form-group"><label for="productPrice">Precio ($)</label> <input type="number" id="productPrice" required step="0.01" min="0" placeholder="0.00">
+      </div>
+      <div class="form-group"><label for="productStock">Stock Inicial</label> <input type="number" id="productStock" required min="0" placeholder="0">
+      </div>
+      <div class="form-group"><label for="productCategory">Categoría</label> <select id="productCategory" required onchange="updateSubcategorySelect()"> <option value="">Seleccionar categoría</option> </select>
+      </div>
+      <div class="form-group"><label for="productSubcategory">Subcategoría</label> <select id="productSubcategory" required> <option value="">Seleccionar subcategoría</option> </select>
+      </div><button type="submit" class="btn btn-primary" id="addBtn">Añadir Producto</button>
+     </form>
+    </div>
+    <div class="card">
+     <h2>📦 Inventario Actual</h2>
+     <div class="filters"><select id="filterCategory" onchange="updateInventoryView()"> <option value="">Todas las categorías</option> </select> <select id="filterSubcategory" onchange="updateInventoryView()"> <option value="">Todas las subcategorías</option> </select>
+     </div>
+     <div id="inventoryList" class="inventory-grid"></div>
+    </div>
+   </div><!-- Sección Categorías -->
+   <div id="categorias" class="section">
+    <div class="card">
+     <h2>📁 Gestión de Categorías</h2>
+     <form id="addCategoryForm" onsubmit="handleAddCategory(event)">
+      <div class="form-group"><label for="categoryName">Nueva Categoría</label> <input type="text" id="categoryName" required placeholder="Ej: Ropa, Electrónica, Hogar">
+      </div><button type="submit" class="btn btn-primary" id="addCategoryBtn">Añadir Categoría</button>
+     </form>
+    </div>
+    <div class="card">
+     <h2>📋 Categorías y Subcategorías</h2>
+     <div id="categoryList" class="category-list"></div>
+    </div>
+   </div><!-- Sección Registro de Ventas -->
+   <div id="ventas" class="section">
+    <div class="card">
+     <h2>💰 Registrar Nueva Venta</h2>
+     <form id="saleForm" onsubmit="handleSale(event)">
+      <div class="form-group"><label for="saleProduct">Seleccionar Producto</label> <select id="saleProduct" required onchange="updateSaleTotal()"> <option value="">Seleccionar producto</option> </select>
+      </div>
+      <div class="form-group"><label for="saleQuantity">Cantidad</label> <input type="number" id="saleQuantity" required min="1" value="1" onchange="updateSaleTotal()">
+      </div>
+      <div class="form-group"><label for="paymentMethod">Método de Pago</label> <select id="paymentMethod" required onchange="toggleCreditFields()"> <option value="">Seleccionar método</option> <option value="Efectivo">💵 Efectivo</option> <option value="Punto de Venta">💳 Punto de Venta</option> <option value="Pago Móvil">📱 Pago Móvil</option> <option value="Divisa">💵 Divisa</option> <option value="Crédito">🏦 Crédito</option> </select>
+      </div>
+      <div id="creditFields" style="display: none;">
+       <div class="form-group"><label for="customerName">Nombre del Cliente</label> <input type="text" id="customerName" placeholder="Nombre completo del cliente">
+       </div>
+       <div class="form-group"><label for="creditAmount">Monto a Crédito</label> <input type="number" id="creditAmount" step="0.01" min="0" placeholder="0.00">
+       </div>
+      </div>
+      <div class="form-group"><label for="tasaDolar">Tasa del Dólar (Bs.)</label> <input type="number" id="tasaDolar" step="0.01" min="0" placeholder="52.50" value="52.50" onchange="updateSaleTotal()">
+      </div>
+      <div id="saleTotal" style="background: #F3E5FF; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center;">
+       <p style="margin: 0; color: #7C5BA6; font-size: 14px;">Total a pagar:</p>
+       <p style="margin: 5px 0 0 0; color: #937D08; font-size: 28px; font-weight: bold;">$0.00</p>
+       <p style="margin: 5px 0 0 0; color: #7C5BA6; font-size: 20px; font-weight: 600;">Bs. 0.00</p>
+      </div><button type="submit" class="btn btn-primary" id="saleBtn">Registrar Venta</button>
+     </form>
+    </div>
+    <div class="card">
+     <h2>📋 Historial de Ventas</h2>
+     <div class="filters"><select id="filterPeriod" onchange="updateSalesView()"> <option value="all">Todas las ventas</option> <option value="today">Hoy</option> <option value="week">Esta semana</option> <option value="month">Este mes</option> </select> <button class="btn btn-secondary" onclick="downloadSalesPDF()">📥 Descargar PDF</button>
+     </div>
+     <div id="salesList"></div>
+    </div>
+   </div><!-- Sección Créditos -->
+   <div id="creditos" class="section">
+    <div class="card">
+     <h2>🏦 Gestión de Créditos</h2>
+     <div class="filters"><select id="creditStatus" onchange="updateCreditView()"> <option value="all">Todos los créditos</option> <option value="pending">Pendientes</option> <option value="paid">Pagados</option> </select> <button class="btn btn-secondary" onclick="downloadCreditsPDF()">📥 Descargar PDF</button>
+     </div>
+     <div id="creditsList"></div>
+    </div>
+    <div class="card">
+     <h2>💰 Resumen de Créditos</h2>
+     <div class="stats-grid" id="creditStatsGrid"></div>
+    </div>
+   </div><!-- Sección Reportes -->
+   <div id="reportes" class="section">
+    <div class="card">
+     <h2>📊 Estadísticas Generales</h2>
+     <div class="stats-grid" id="statsGrid"></div>
+    </div>
+    <div class="card">
+     <h2>📈 Reportes de Ventas</h2>
+     <div class="filters"><select id="reportPeriod" onchange="updateReports()"> <option value="today">Reporte Diario</option> <option value="month">Reporte Mensual</option> </select> <button class="btn btn-accent" onclick="downloadReportPDF()">📥 Descargar Reporte PDF</button>
+     </div>
+     <div id="reportContent"></div>
+    </div>
+    <div class="card">
+     <h2>📦 Inventario Completo</h2><button class="btn btn-secondary" onclick="downloadInventoryPDF()">📥 Descargar Inventario PDF</button>
+    </div>
+   </div>
+  </div>
+  <script>
+    let productos = [];
+    let ventas = [];
+    let categorias = {}; // { "Categoria": ["Subcategoria1", "Subcategoria2"] }
+    let currentSection = 'agregar';
+    
+    const defaultConfig = {
+      store_name: "EM Tienda Online",
+      welcome_message: "Gestiona tu inventario y ventas",
+      background_color: "#ffffff",
+      surface_color: "#F3E5FF",
+      text_color: "#7C5BA6",
+      primary_action_color: "#D4C5E8",
+      secondary_action_color: "#937D08"
+    };
+    
+    let config = { ...defaultConfig };
+    
+    const dataHandler = {
+      onDataChanged(data) {
+        // Store all data
+        productos = data;
+        
+        // Build categories object from data
+        categorias = {};
+        data.forEach(item => {
+          if (item.tipo === 'categoria' && item.categoria) {
+            // Initialize category if it doesn't exist
+            if (!categorias[item.categoria]) {
+              categorias[item.categoria] = [];
+            }
+            // Add subcategory if it exists and isn't already in the list
+            if (item.subcategoria && !categorias[item.categoria].includes(item.subcategoria)) {
+              categorias[item.categoria].push(item.subcategoria);
+            }
+          }
+        });
+        
+        updateInventoryView();
+        updateSalesProductSelect();
+        updateSalesView();
+        updateReports();
+        updateCategorySelects();
+        updateCategoryList();
+      }
+    };
+    
+    async function initApp() {
+      if (window.dataSdk) {
+        const initResult = await window.dataSdk.init(dataHandler);
+        if (!initResult.isOk) {
+          showToast('Error al inicializar la aplicación', 'error');
+        }
+      }
+      
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (newConfig) => {
+            config = { ...defaultConfig, ...newConfig };
+            
+            document.getElementById('storeName').textContent = config.store_name || defaultConfig.store_name;
+            document.getElementById('welcomeMessage').textContent = config.welcome_message || defaultConfig.welcome_message;
+            
+            document.body.style.background = config.background_color || defaultConfig.background_color;
+            
+            const surfaceColor = config.surface_color || defaultConfig.surface_color;
+            document.querySelectorAll('.product-card, .venta-item, .stock-badge, .btn-secondary').forEach(el => {
+              el.style.background = surfaceColor;
+            });
+            
+            const textColor = config.text_color || defaultConfig.text_color;
+            document.querySelectorAll('.header h1, .card h2, .product-card h3, h4, label, .tab, .stat-card h3').forEach(el => {
+              el.style.color = textColor;
+            });
+            
+            const primaryColor = config.primary_action_color || defaultConfig.primary_action_color;
+            document.querySelectorAll('.btn-primary, .tab.active, .toast').forEach(el => {
+              el.style.background = primaryColor;
+            });
+            
+            const secondaryColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+            document.querySelectorAll('.header p, .product-info .price, .stat-card .value, .btn-accent').forEach(el => {
+              el.style.color = secondaryColor;
+            });
+          },
+          mapToCapabilities: (cfg) => ({
+            recolorables: [
+              {
+                get: () => cfg.background_color || defaultConfig.background_color,
+                set: (value) => {
+                  cfg.background_color = value;
+                  window.elementSdk.setConfig({ background_color: value });
+                }
+              },
+              {
+                get: () => cfg.surface_color || defaultConfig.surface_color,
+                set: (value) => {
+                  cfg.surface_color = value;
+                  window.elementSdk.setConfig({ surface_color: value });
+                }
+              },
+              {
+                get: () => cfg.text_color || defaultConfig.text_color,
+                set: (value) => {
+                  cfg.text_color = value;
+                  window.elementSdk.setConfig({ text_color: value });
+                }
+              },
+              {
+                get: () => cfg.primary_action_color || defaultConfig.primary_action_color,
+                set: (value) => {
+                  cfg.primary_action_color = value;
+                  window.elementSdk.setConfig({ primary_action_color: value });
+                }
+              },
+              {
+                get: () => cfg.secondary_action_color || defaultConfig.secondary_action_color,
+                set: (value) => {
+                  cfg.secondary_action_color = value;
+                  window.elementSdk.setConfig({ secondary_action_color: value });
+                }
+              }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (cfg) => new Map([
+            ["store_name", cfg.store_name || defaultConfig.store_name],
+            ["welcome_message", cfg.welcome_message || defaultConfig.welcome_message]
+          ])
+        });
+      }
+    }
+    
+    function showSection(section) {
+      currentSection = section;
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      
+      document.getElementById(section).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (section === 'ventas') {
+        updateSalesView();
+      } else if (section === 'creditos') {
+        updateCreditView();
+      } else if (section === 'reportes') {
+        updateReports();
+      } else if (section === 'categorias') {
+        updateCategoryList();
+      }
+    }
+    
+    async function handleAddCategory(event) {
+      event.preventDefault();
+      
+      const allItems = [...productos, ...getAllCategoryItems()];
+      if (allItems.length >= 999) {
+        showToast('Límite máximo de 999 elementos alcanzado', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('addCategoryBtn');
+      btn.disabled = true;
+      btn.innerHTML = 'Añadiendo... <span class="loading"></span>';
+      
+      const categoryName = document.getElementById('categoryName').value.trim();
+      
+      if (categorias[categoryName]) {
+        showToast('Esta categoría ya existe', 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Añadir Categoría';
+        return;
+      }
+      
+      const categoryItem = {
+        id: 'cat_' + Date.now(),
+        tipo: 'categoria',
+        categoria: categoryName,
+        subcategoria: '',
+        nombre: categoryName,
+        precio: 0,
+        stock: 0,
+        fechaCreacion: new Date().toISOString()
+      };
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(categoryItem);
+        
+        if (result.isOk) {
+          showToast('Categoría añadida exitosamente');
+          document.getElementById('addCategoryForm').reset();
+        } else {
+          showToast('Error al añadir categoría', 'error');
+        }
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Añadir Categoría';
+    }
+    
+    function getAllCategoryItems() {
+      const allData = window.dataSdk ? [...productos] : [];
+      const catItems = [];
+      Object.keys(categorias).forEach(cat => {
+        catItems.push({ categoria: cat });
+        categorias[cat].forEach(sub => {
+          catItems.push({ categoria: cat, subcategoria: sub });
+        });
+      });
+      return catItems;
+    }
+    
+    async function handleAddSubcategory(categoryName) {
+      const input = document.getElementById(`subcat-input-${categoryName}`);
+      const subcategoryName = input.value.trim();
+      
+      if (!subcategoryName) {
+        showToast('Ingresa un nombre para la subcategoría', 'error');
+        return;
+      }
+      
+      if (categorias[categoryName].includes(subcategoryName)) {
+        showToast('Esta subcategoría ya existe', 'error');
+        return;
+      }
+      
+      const allItems = [...productos, ...getAllCategoryItems()];
+      if (allItems.length >= 999) {
+        showToast('Límite máximo de 999 elementos alcanzado', 'error');
+        return;
+      }
+      
+      const subcategoryItem = {
+        id: 'subcat_' + Date.now(),
+        tipo: 'categoria',
+        categoria: categoryName,
+        subcategoria: subcategoryName,
+        nombre: subcategoryName,
+        precio: 0,
+        stock: 0,
+        fechaCreacion: new Date().toISOString()
+      };
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(subcategoryItem);
+        
+        if (result.isOk) {
+          showToast('Subcategoría añadida exitosamente');
+          input.value = '';
+        } else {
+          showToast('Error al añadir subcategoría', 'error');
+        }
+      }
+    }
+    
+    async function deleteCategory(categoryName) {
+      // Find all items with this category
+      const allData = window.dataSdk ? [...productos] : [];
+      const itemsToDelete = allData.filter(item => 
+        item.tipo === 'categoria' && item.categoria === categoryName
+      );
+      
+      if (itemsToDelete.length === 0) return;
+      
+      // Check if any products use this category
+      const productsWithCategory = productos.filter(p => p.categoria === categoryName && (!p.tipo || p.tipo === 'producto'));
+      if (productsWithCategory.length > 0) {
+        showToast(`No se puede eliminar: ${productsWithCategory.length} productos usan esta categoría`, 'error');
+        return;
+      }
+      
+      if (window.dataSdk) {
+        for (const item of itemsToDelete) {
+          await window.dataSdk.delete(item);
+        }
+        showToast('Categoría eliminada');
+      }
+    }
+    
+    async function deleteSubcategory(categoryName, subcategoryName) {
+      // Check if any products use this subcategory
+      const productsWithSubcategory = productos.filter(p => 
+        p.categoria === categoryName && p.subcategoria === subcategoryName && (!p.tipo || p.tipo === 'producto')
+      );
+      
+      if (productsWithSubcategory.length > 0) {
+        showToast(`No se puede eliminar: ${productsWithSubcategory.length} productos usan esta subcategoría`, 'error');
+        return;
+      }
+      
+      const allData = window.dataSdk ? [...productos] : [];
+      const itemToDelete = allData.find(item => 
+        item.tipo === 'categoria' && 
+        item.categoria === categoryName && 
+        item.subcategoria === subcategoryName
+      );
+      
+      if (itemToDelete && window.dataSdk) {
+        const result = await window.dataSdk.delete(itemToDelete);
+        if (result.isOk) {
+          showToast('Subcategoría eliminada');
+        } else {
+          showToast('Error al eliminar subcategoría', 'error');
+        }
+      }
+    }
+    
+    function updateCategoryList() {
+      const container = document.getElementById('categoryList');
+      
+      if (Object.keys(categorias).length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+            </svg>
+            <h3>No hay categorías creadas</h3>
+            <p>Crea tu primera categoría usando el formulario arriba</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = Object.keys(categorias).map(categoryName => {
+        const subcategories = categorias[categoryName] || [];
+        const productCount = productos.filter(p => p.categoria === categoryName && (!p.tipo || p.tipo === 'producto')).length;
+        
+        return `
+          <div class="category-item">
+            <div class="category-header">
+              <div>
+                <span class="category-title">📁 ${categoryName}</span>
+                <span style="color: #999; font-size: 13px; margin-left: 10px;">(${productCount} productos)</span>
+              </div>
+              <button class="btn btn-danger btn-small" onclick="deleteCategory('${categoryName}')">🗑️ Eliminar</button>
+            </div>
+            
+            ${subcategories.length > 0 ? `
+              <div class="subcategory-list">
+                ${subcategories.map(sub => {
+                  const subProductCount = productos.filter(p => p.categoria === categoryName && p.subcategoria === sub && (!p.tipo || p.tipo === 'producto')).length;
+                  return `
+                    <div class="subcategory-tag">
+                      ${sub} (${subProductCount})
+                      <span class="delete-subcategory" onclick="deleteSubcategory('${categoryName}', '${sub}')">✕</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            ` : '<p style="color: #999; font-size: 13px; margin-top: 10px; padding-left: 20px;">No hay subcategorías</p>'}
+            
+            <div class="inline-form">
+              <input type="text" id="subcat-input-${categoryName}" placeholder="Nueva subcategoría">
+              <button class="btn btn-secondary btn-small" onclick="handleAddSubcategory('${categoryName}')">+ Añadir</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function updateCategorySelects() {
+      // Update product form category select
+      const productCategorySelect = document.getElementById('productCategory');
+      const currentCategory = productCategorySelect.value;
+      productCategorySelect.innerHTML = '<option value="">Seleccionar categoría</option>' + 
+        Object.keys(categorias).map(cat => `<option value="${cat}">${cat}</option>`).join('');
+      if (currentCategory && categorias[currentCategory]) {
+        productCategorySelect.value = currentCategory;
+      }
+      
+      // Update filter category select
+      const filterCategorySelect = document.getElementById('filterCategory');
+      const currentFilter = filterCategorySelect.value;
+      filterCategorySelect.innerHTML = '<option value="">Todas las categorías</option>' + 
+        Object.keys(categorias).map(cat => `<option value="${cat}">${cat}</option>`).join('');
+      if (currentFilter) {
+        filterCategorySelect.value = currentFilter;
+      }
+      
+      updateSubcategorySelect();
+    }
+    
+    function updateSubcategorySelect() {
+      const categorySelect = document.getElementById('productCategory');
+      const subcategorySelect = document.getElementById('productSubcategory');
+      const selectedCategory = categorySelect.value;
+      
+      subcategorySelect.innerHTML = '<option value="">Seleccionar subcategoría</option>';
+      
+      if (selectedCategory && categorias[selectedCategory]) {
+        subcategorySelect.innerHTML += categorias[selectedCategory]
+          .map(sub => `<option value="${sub}">${sub}</option>`)
+          .join('');
+      }
+      
+      // Update filter subcategory
+      const filterCategorySelect = document.getElementById('filterCategory');
+      const filterSubcategorySelect = document.getElementById('filterSubcategory');
+      const selectedFilterCategory = filterCategorySelect.value;
+      
+      filterSubcategorySelect.innerHTML = '<option value="">Todas las subcategorías</option>';
+      
+      if (selectedFilterCategory && categorias[selectedFilterCategory]) {
+        filterSubcategorySelect.innerHTML += categorias[selectedFilterCategory]
+          .map(sub => `<option value="${sub}">${sub}</option>`)
+          .join('');
+      }
+    }
+    
+    function updateCreditView() {
+      const container = document.getElementById('creditsList');
+      const status = document.getElementById('creditStatus').value;
+      
+      const creditSales = ventas.filter(v => v.metodoPago === 'Crédito');
+      
+      creditSales.forEach(sale => {
+        if (sale.creditoPagado === undefined) {
+          sale.creditoPagado = false;
+        }
+      });
+      
+      let filteredCredits = creditSales;
+      if (status === 'pending') {
+        filteredCredits = creditSales.filter(c => !c.creditoPagado);
+      } else if (status === 'paid') {
+        filteredCredits = creditSales.filter(c => c.creditoPagado);
+      }
+      
+      if (filteredCredits.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+              <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+            </svg>
+            <h3>No hay créditos registrados</h3>
+            <p>Los créditos aparecerán aquí cuando registres ventas a crédito</p>
+          </div>
+        `;
+        updateCreditStats(creditSales);
+        return;
+      }
+      
+      container.innerHTML = filteredCredits.map((venta, index) => {
+        const fecha = new Date(venta.fecha);
+        const isPaid = venta.creditoPagado;
+        
+        const montoBs = venta.montoCreditoBolivares || 0;
+        
+        return `
+          <div class="venta-item" style="border-left: 4px solid ${isPaid ? '#A8D5BA' : '#E8C5D4'};">
+            <div class="venta-info" style="flex: 1;">
+              <h4>${venta.clienteCredito} ${isPaid ? '✅' : '⏳'}</h4>
+              <p><strong>Producto:</strong> ${venta.productoNombre} | <strong>Cantidad:</strong> ${venta.cantidad}</p>
+              <p><strong>Monto:</strong> $${venta.montoCredito.toFixed(2)}${montoBs > 0 ? ` | <strong>Bs.</strong> ${montoBs.toFixed(2)}` : ''}</p>
+              <p style="font-size: 12px; color: #999;">${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}</p>
+              ${isPaid ? '<p style="color: #4A9B6E; font-weight: 600;">✓ Pagado</p>' : '<p style="color: #D77; font-weight: 600;">⏳ Pendiente</p>'}
+            </div>
+            ${!isPaid ? `<button class="btn btn-primary" onclick="markCreditAsPaid(${ventas.indexOf(venta)})">Marcar como Pagado</button>` : ''}
+          </div>
+        `;
+      }).join('');
+      
+      updateCreditStats(creditSales);
+    }
+    
+    function markCreditAsPaid(ventaIndex) {
+      ventas[ventaIndex].creditoPagado = true;
+      ventas[ventaIndex].fechaPago = new Date().toISOString();
+      updateCreditView();
+      showToast('Crédito marcado como pagado');
+    }
+    
+    function updateCreditStats(creditSales) {
+      const container = document.getElementById('creditStatsGrid');
+      
+      const totalCredits = creditSales.length;
+      const pendingCredits = creditSales.filter(c => !c.creditoPagado).length;
+      const paidCredits = creditSales.filter(c => c.creditoPagado).length;
+      const totalPending = creditSales.filter(c => !c.creditoPagado).reduce((sum, c) => sum + c.montoCredito, 0);
+      const totalPaid = creditSales.filter(c => c.creditoPagado).reduce((sum, c) => sum + c.montoCredito, 0);
+      const totalPendingBs = creditSales.filter(c => !c.creditoPagado).reduce((sum, c) => sum + (c.montoCreditoBolivares || 0), 0);
+      const totalPaidBs = creditSales.filter(c => c.creditoPagado).reduce((sum, c) => sum + (c.montoCreditoBolivares || 0), 0);
+      
+      container.innerHTML = `
+        <div class="stat-card">
+          <h3>Total Créditos</h3>
+          <p class="value">${totalCredits}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Pendientes</h3>
+          <p class="value" style="color: #D77;">${pendingCredits}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Pagados</h3>
+          <p class="value" style="color: #4A9B6E;">${paidCredits}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Monto Pendiente</h3>
+          <p class="value" style="color: #D77; font-size: 20px;">$${totalPending.toFixed(2)}</p>
+          <p style="color: #D77; font-size: 16px; margin: 5px 0 0 0;">Bs. ${totalPendingBs.toFixed(2)}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Monto Cobrado</h3>
+          <p class="value" style="color: #4A9B6E; font-size: 20px;">$${totalPaid.toFixed(2)}</p>
+          <p style="color: #4A9B6E; font-size: 16px; margin: 5px 0 0 0;">Bs. ${totalPaidBs.toFixed(2)}</p>
+        </div>
+      `;
+    }
+    
+    function downloadCreditsPDF() {
+      const creditSales = ventas.filter(v => v.metodoPago === 'Crédito');
+      
+      if (creditSales.length === 0) {
+        showToast('No hay créditos para descargar', 'error');
+        return;
+      }
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text('Reporte de Créditos - EM Tienda Online', 14, 20);
+      
+      doc.setFontSize(12);
+      doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 30);
+      
+      const pendingCredits = creditSales.filter(c => !c.creditoPagado);
+      const paidCredits = creditSales.filter(c => c.creditoPagado);
+      
+      doc.text(`Total créditos: ${creditSales.length}`, 14, 40);
+      doc.text(`Pendientes: ${pendingCredits.length}`, 14, 47);
+      doc.text(`Pagados: ${paidCredits.length}`, 14, 54);
+      
+      const tableData = creditSales.map(v => {
+        const bsText = v.montoCreditoBolivares ? `Bs. ${v.montoCreditoBolivares.toFixed(2)}` : '-';
+        return [
+          v.clienteCredito,
+          v.productoNombre,
+          v.cantidad,
+          `$${v.montoCredito.toFixed(2)}`,
+          bsText,
+          v.creditoPagado ? 'Pagado' : 'Pendiente',
+          new Date(v.fecha).toLocaleDateString()
+        ];
+      });
+      
+      doc.autoTable({
+        startY: 65,
+        head: [['Cliente', 'Producto', 'Cant.', 'Monto $', 'Monto Bs', 'Estado', 'Fecha']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [212, 197, 232] },
+        styles: { fontSize: 8 }
+      });
+      
+      const totalPending = pendingCredits.reduce((sum, c) => sum + c.montoCredito, 0);
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(14);
+      doc.text(`Total por Cobrar: $${totalPending.toFixed(2)}`, 14, finalY);
+      
+      doc.save(`creditos_${Date.now()}.pdf`);
+      showToast('PDF de créditos descargado');
+    }
+    
+    async function handleAddProduct(event) {
+      event.preventDefault();
+      
+      const allItems = [...productos, ...getAllCategoryItems()];
+      if (allItems.length >= 999) {
+        showToast('Límite máximo de 999 elementos alcanzado', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('addBtn');
+      btn.disabled = true;
+      btn.innerHTML = 'Añadiendo... <span class="loading"></span>';
+      
+      const producto = {
+        id: 'prod_' + Date.now(),
+        tipo: 'producto',
+        nombre: document.getElementById('productName').value,
+        precio: parseFloat(document.getElementById('productPrice').value),
+        stock: parseInt(document.getElementById('productStock').value),
+        categoria: document.getElementById('productCategory').value,
+        subcategoria: document.getElementById('productSubcategory').value,
+        fechaCreacion: new Date().toISOString()
+      };
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(producto);
+        
+        if (result.isOk) {
+          showToast('Producto añadido exitosamente');
+          document.getElementById('addProductForm').reset();
+        } else {
+          showToast('Error al añadir producto', 'error');
+        }
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Añadir Producto';
+    }
+    
+    function updateInventoryView() {
+      const container = document.getElementById('inventoryList');
+      const filterCategory = document.getElementById('filterCategory').value;
+      const filterSubcategory = document.getElementById('filterSubcategory').value;
+      
+      let filteredProducts = productos.filter(p => !p.tipo || p.tipo === 'producto');
+      
+      if (filterCategory) {
+        filteredProducts = filteredProducts.filter(p => p.categoria === filterCategory);
+      }
+      
+      if (filterSubcategory) {
+        filteredProducts = filteredProducts.filter(p => p.subcategoria === filterSubcategory);
+      }
+      
+      if (filteredProducts.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+            </svg>
+            <h3>No hay productos en el inventario</h3>
+            <p>Añade tu primer producto usando el formulario arriba</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filteredProducts.map(producto => `
+        <div class="product-card">
+          <h3>${producto.nombre}</h3>
+          <div class="product-info">
+            <p class="price">$${producto.precio.toFixed(2)}</p>
+            <p>
+              <span class="category-badge">${producto.categoria}</span>
+              ${producto.subcategoria ? `<span class="category-badge" style="background: #937D08;">${producto.subcategoria}</span>` : ''}
+            </p>
+            <p><strong>Stock:</strong> <span class="stock-badge ${producto.stock < 10 ? 'low' : ''}">${producto.stock} unidades</span></p>
+          </div>
+          <div class="product-actions">
+            <button class="btn btn-secondary" onclick="editStock('${producto.id}', 1)">+ Stock</button>
+            <button class="btn btn-secondary" onclick="editStock('${producto.id}', -1)">- Stock</button>
+            <button class="btn btn-danger" onclick="deleteProduct('${producto.id}')">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    async function editStock(id, change) {
+      const producto = productos.find(p => p.id === id);
+      if (!producto) return;
+      
+      const newStock = producto.stock + change;
+      if (newStock < 0) {
+        showToast('El stock no puede ser negativo', 'error');
+        return;
+      }
+      
+      producto.stock = newStock;
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.update(producto);
+        if (!result.isOk) {
+          showToast('Error al actualizar stock', 'error');
+        }
+      }
+    }
+    
+    async function deleteProduct(id) {
+      const producto = productos.find(p => p.id === id);
+      if (!producto) return;
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.delete(producto);
+        if (result.isOk) {
+          showToast('Producto eliminado');
+        } else {
+          showToast('Error al eliminar producto', 'error');
+        }
+      }
+    }
+    
+    function updateSalesProductSelect() {
+      const select = document.getElementById('saleProduct');
+      const currentValue = select.value;
+      
+      const realProducts = productos.filter(p => (!p.tipo || p.tipo === 'producto') && p.stock > 0);
+      
+      select.innerHTML = '<option value="">Seleccionar producto</option>' +
+        realProducts
+          .map(p => `<option value="${p.id}" data-price="${p.precio}">${p.nombre} - $${p.precio.toFixed(2)} (${p.stock} disponibles)</option>`)
+          .join('');
+      
+      if (currentValue && realProducts.find(p => p.id === currentValue)) {
+        select.value = currentValue;
+      }
+      
+      updateSaleTotal();
+    }
+    
+    function updateSaleTotal() {
+      const select = document.getElementById('saleProduct');
+      const quantity = parseInt(document.getElementById('saleQuantity').value) || 0;
+      const selectedOption = select.options[select.selectedIndex];
+      const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+      const total = price * quantity;
+      const tasaDolar = parseFloat(document.getElementById('tasaDolar').value) || 0;
+      const totalBolivares = total * tasaDolar;
+      
+      const totalDisplays = document.querySelectorAll('#saleTotal p');
+      if (totalDisplays.length >= 2) {
+        totalDisplays[1].textContent = `$${total.toFixed(2)}`;
+        if (totalDisplays.length >= 3) {
+          totalDisplays[2].textContent = `Bs. ${totalBolivares.toFixed(2)}`;
+        }
+      }
+    }
+    
+    function toggleCreditFields() {
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const creditFields = document.getElementById('creditFields');
+      const customerName = document.getElementById('customerName');
+      const creditAmount = document.getElementById('creditAmount');
+      
+      if (paymentMethod === 'Crédito') {
+        creditFields.style.display = 'block';
+        customerName.required = true;
+        creditAmount.required = true;
+        
+        updateSaleTotal();
+        const totalText = document.querySelector('#saleTotal p:last-child').textContent;
+        const totalValue = parseFloat(totalText.replace('$', ''));
+        creditAmount.value = totalValue.toFixed(2);
+      } else {
+        creditFields.style.display = 'none';
+        customerName.required = false;
+        creditAmount.required = false;
+        customerName.value = '';
+        creditAmount.value = '';
+      }
+    }
+    
+    async function handleSale(event) {
+      event.preventDefault();
+      
+      const btn = document.getElementById('saleBtn');
+      btn.disabled = true;
+      btn.innerHTML = 'Registrando... <span class="loading"></span>';
+      
+      const productId = document.getElementById('saleProduct').value;
+      const quantity = parseInt(document.getElementById('saleQuantity').value);
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const customerName = document.getElementById('customerName').value;
+      const creditAmount = parseFloat(document.getElementById('creditAmount').value) || 0;
+      const tasaDolar = parseFloat(document.getElementById('tasaDolar').value) || 0;
+      
+      const producto = productos.find(p => p.id === productId);
+      if (!producto) {
+        showToast('Producto no encontrado', 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Registrar Venta';
+        return;
+      }
+      
+      if (producto.stock < quantity) {
+        showToast('Stock insuficiente', 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Registrar Venta';
+        return;
+      }
+      
+      producto.stock -= quantity;
+      
+      const venta = {
+        productoId: productId,
+        productoNombre: producto.nombre,
+        cantidad: quantity,
+        precioUnitario: producto.precio,
+        total: producto.precio * quantity,
+        tasaDolar: tasaDolar,
+        totalBolivares: (producto.precio * quantity) * tasaDolar,
+        metodoPago: paymentMethod,
+        clienteCredito: paymentMethod === 'Crédito' ? customerName : '',
+        montoCredito: paymentMethod === 'Crédito' ? creditAmount : 0,
+        montoCreditoBolivares: paymentMethod === 'Crédito' ? creditAmount * tasaDolar : 0,
+        fecha: new Date().toISOString()
+      };
+      
+      ventas.push(venta);
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.update(producto);
+        if (result.isOk) {
+          const message = paymentMethod === 'Crédito' 
+            ? `Venta a crédito registrada: ${customerName} - ${quantity} x ${producto.nombre}`
+            : `Venta registrada: ${quantity} x ${producto.nombre} (${paymentMethod})`;
+          showToast(message);
+          document.getElementById('saleForm').reset();
+          document.getElementById('creditFields').style.display = 'none';
+          updateSaleTotal();
+          updateSalesView();
+        } else {
+          showToast('Error al registrar venta', 'error');
+          producto.stock += quantity;
+          ventas.pop();
+        }
+      }
+      
+      btn.disabled = false;
+      btn.innerHTML = 'Registrar Venta';
+    }
+    
+    function updateSalesView() {
+      const container = document.getElementById('salesList');
+      const period = document.getElementById('filterPeriod').value;
+      
+      const filteredSales = filterSalesByPeriod(ventas, period);
+      
+      if (filteredSales.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <h3>No hay ventas registradas</h3>
+            <p>Las ventas aparecerán aquí una vez que las registres</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filteredSales.reverse().map(venta => {
+        const fecha = new Date(venta.fecha);
+        const metodoPago = venta.metodoPago || 'Efectivo';
+        const esCredito = metodoPago === 'Crédito';
+        
+        const totalBs = venta.totalBolivares || 0;
+        const tasa = venta.tasaDolar || 0;
+        
+        return `
+          <div class="venta-item">
+            <div class="venta-info">
+              <h4>${venta.productoNombre} ${esCredito ? '🏦' : ''}</h4>
+              <p>Cantidad: ${venta.cantidad} | Precio: $${venta.precioUnitario.toFixed(2)} | Total: $${venta.total.toFixed(2)}</p>
+              ${tasa > 0 ? `<p style="color: #937D08;"><strong>Total en Bs:</strong> ${totalBs.toFixed(2)} (Tasa: ${tasa.toFixed(2)})</p>` : ''}
+              <p><strong>Método de pago:</strong> ${metodoPago}</p>
+              ${esCredito ? `<p style="color: #937D08;"><strong>Cliente:</strong> ${venta.clienteCredito} | <strong>Monto a crédito:</strong> $${venta.montoCredito.toFixed(2)}${venta.montoCreditoBolivares ? ` (Bs. ${venta.montoCreditoBolivares.toFixed(2)})` : ''}</p>` : ''}
+              <p style="font-size: 12px; color: #999;">${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function filterSalesByPeriod(sales, period) {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      return sales.filter(venta => {
+        const ventaDate = new Date(venta.fecha);
+        
+        switch(period) {
+          case 'today':
+            return ventaDate >= today;
+          case 'week':
+            const weekAgo = new Date(today);
+            weekAgo.setDate(weekAgo.getDate() - 7);
+            return ventaDate >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(today);
+            monthAgo.setMonth(monthAgo.getMonth() - 1);
+            return ventaDate >= monthAgo;
+          default:
+            return true;
+        }
+      });
+    }
+    
+    function updateReports() {
+      updateStatsGrid();
+      updateReportContent();
+    }
+    
+    function updateStatsGrid() {
+      const container = document.getElementById('statsGrid');
+      
+      const realProducts = productos.filter(p => !p.tipo || p.tipo === 'producto');
+      const totalProductos = realProducts.length;
+      const valorInventario = realProducts.reduce((sum, p) => sum + (p.precio * p.stock), 0);
+      const totalVentas = ventas.reduce((sum, v) => sum + v.total, 0);
+      const productosVendidos = ventas.reduce((sum, v) => sum + v.cantidad, 0);
+      
+      container.innerHTML = `
+        <div class="stat-card">
+          <h3>Total Productos</h3>
+          <p class="value">${totalProductos}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Valor Inventario</h3>
+          <p class="value">$${valorInventario.toFixed(2)}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Total Ventas</h3>
+          <p class="value">$${totalVentas.toFixed(2)}</p>
+        </div>
+        <div class="stat-card">
+          <h3>Unidades Vendidas</h3>
+          <p class="value">${productosVendidos}</p>
+        </div>
+      `;
+    }
+    
+    function updateReportContent() {
+      const container = document.getElementById('reportContent');
+      const period = document.getElementById('reportPeriod').value;
+      
+      const filteredSales = filterSalesByPeriod(ventas, period);
+      const totalVentas = filteredSales.reduce((sum, v) => sum + v.total, 0);
+      const cantidadVentas = filteredSales.length;
+      
+      const periodText = period === 'today' ? 'Hoy' : 'Este Mes';
+      
+      container.innerHTML = `
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h3>Ventas ${periodText}</h3>
+            <p class="value">${cantidadVentas}</p>
+          </div>
+          <div class="stat-card">
+            <h3>Ingresos ${periodText}</h3>
+            <p class="value">$${totalVentas.toFixed(2)}</p>
+          </div>
+        </div>
+      `;
+    }
+    
+    function downloadSalesPDF() {
+      const period = document.getElementById('filterPeriod').value;
+      const filteredSales = filterSalesByPeriod(ventas, period);
+      
+      if (filteredSales.length === 0) {
+        showToast('No hay ventas para descargar', 'error');
+        return;
+      }
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text('Registro de Ventas - EM Tienda Online', 14, 20);
+      
+      const periodNames = {
+        'all': 'Todas las ventas',
+        'today': 'Hoy',
+        'week': 'Esta semana',
+        'month': 'Este mes'
+      };
+      
+      doc.setFontSize(12);
+      doc.text(`Período: ${periodNames[period]}`, 14, 30);
+      doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 37);
+      
+      const tableData = filteredSales.map(v => {
+        const bsText = v.totalBolivares ? `Bs. ${v.totalBolivares.toFixed(2)}` : '-';
+        return [
+          v.productoNombre,
+          v.cantidad,
+          `$${v.precioUnitario.toFixed(2)}`,
+          `$${v.total.toFixed(2)}`,
+          bsText,
+          v.metodoPago || 'Efectivo',
+          new Date(v.fecha).toLocaleString()
+        ];
+      });
+      
+      doc.autoTable({
+        startY: 45,
+        head: [['Producto', 'Cant.', 'Precio', 'Total $', 'Total Bs', 'Método', 'Fecha']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [212, 197, 232] },
+        styles: { fontSize: 7 }
+      });
+      
+      const total = filteredSales.reduce((sum, v) => sum + v.total, 0);
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(14);
+      doc.text(`Total: $${total.toFixed(2)}`, 14, finalY);
+      
+      doc.save(`ventas_${period}_${Date.now()}.pdf`);
+      showToast('PDF descargado exitosamente');
+    }
+    
+    function downloadReportPDF() {
+      const period = document.getElementById('reportPeriod').value;
+      const filteredSales = filterSalesByPeriod(ventas, period);
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text('Reporte de Ventas - EM Tienda Online', 14, 20);
+      
+      const periodText = period === 'today' ? 'Diario' : 'Mensual';
+      doc.setFontSize(12);
+      doc.text(`Reporte ${periodText}`, 14, 30);
+      doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 37);
+      
+      const totalVentas = filteredSales.reduce((sum, v) => sum + v.total, 0);
+      const cantidadVentas = filteredSales.length;
+      const productosVendidos = filteredSales.reduce((sum, v) => sum + v.cantidad, 0);
+      
+      doc.setFontSize(14);
+      doc.text('Resumen:', 14, 50);
+      doc.setFontSize(12);
+      doc.text(`Total de ventas: ${cantidadVentas}`, 14, 60);
+      doc.text(`Unidades vendidas: ${productosVendidos}`, 14, 67);
+      doc.text(`Ingresos totales: $${totalVentas.toFixed(2)}`, 14, 74);
+      
+      if (filteredSales.length > 0) {
+        const tableData = filteredSales.map(v => [
+          v.productoNombre,
+          v.cantidad,
+          `$${v.total.toFixed(2)}`
+        ]);
+        
+        doc.autoTable({
+          startY: 85,
+          head: [['Producto', 'Cantidad', 'Total']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { fillColor: [212, 197, 232] }
+        });
+      }
+      
+      doc.save(`reporte_${period}_${Date.now()}.pdf`);
+      showToast('Reporte descargado exitosamente');
+    }
+    
+    function downloadInventoryPDF() {
+      const realProducts = productos.filter(p => !p.tipo || p.tipo === 'producto');
+      
+      if (realProducts.length === 0) {
+        showToast('No hay productos en el inventario', 'error');
+        return;
+      }
+      
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFontSize(18);
+      doc.text('Inventario Completo - EM Tienda Online', 14, 20);
+      
+      doc.setFontSize(12);
+      doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 30);
+      doc.text(`Total de productos: ${realProducts.length}`, 14, 37);
+      
+      const tableData = realProducts.map(p => [
+        p.nombre,
+        `${p.categoria} / ${p.subcategoria || '-'}`,
+        p.stock,
+        `$${p.precio.toFixed(2)}`,
+        `$${(p.precio * p.stock).toFixed(2)}`
+      ]);
+      
+      doc.autoTable({
+        startY: 45,
+        head: [['Producto', 'Categoría', 'Stock', 'Precio', 'Valor Total']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [212, 197, 232] },
+        styles: { fontSize: 9 }
+      });
+      
+      const valorTotal = realProducts.reduce((sum, p) => sum + (p.precio * p.stock), 0);
+      const finalY = doc.lastAutoTable.finalY + 10;
+      doc.setFontSize(14);
+      doc.text(`Valor Total del Inventario: $${valorTotal.toFixed(2)}`, 14, finalY);
+      
+      doc.save(`inventario_${Date.now()}.pdf`);
+      showToast('Inventario descargado exitosamente');
+    }
+    
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      
+      if (type === 'error') {
+        toast.style.background = '#E8C5D4';
+      }
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.remove();
+      }, 3000);
+    }
+    
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a1ae70be086f786',t:'MTc2MzY3MjY5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
